@@ -48,68 +48,83 @@ struct CardShell<Content: View>: View {
 
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
+            RoundedRectangle(cornerRadius: 26, style: .continuous)
                 .fill(Color.white)
-                .shadow(color: .black.opacity(0.25), radius: 13, x: 0, y: 7)
+                .shadow(color: .black.opacity(0.18), radius: 18, x: 0, y: 10)
             content
-                .padding(13)
+                .padding(16)
         }
         .padding(5)
     }
 }
 
-struct WidgetStat: View {
+struct StatCell: View {
+    let icon: String
+    let iconColor: Color
     let label: String
     let value: String
-    var size: CGFloat = 17
+    let caption: String
+    var valueColor: Color = .black
+    var valueSize: CGFloat = 30
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(label)
-                .font(.caption2)
+        VStack(alignment: .leading, spacing: 5) {
+            HStack(spacing: 5) {
+                Image(systemName: icon)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(iconColor)
+                Text(label)
+                    .font(.system(size: 12.5, weight: .medium))
+                    .foregroundStyle(Color(white: 0.35))
+                    .lineLimit(1)
+            }
+            Text(value)
+                .font(.system(size: valueSize, weight: .bold))
+                .foregroundStyle(valueColor)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+            Text(caption)
+                .font(.system(size: 11.5))
                 .foregroundStyle(.gray)
                 .lineLimit(1)
-            Text(value)
-                .font(.system(size: size, weight: .bold))
-                .foregroundStyle(.black)
-                .lineLimit(1)
-                .minimumScaleFactor(0.65)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
+
+private let tealColor = Color(red: 0.08, green: 0.62, blue: 0.52)
 
 struct SmallView: View {
     let data: DashboardData
 
     var body: some View {
         CardShell {
-            VStack(alignment: .leading, spacing: 7) {
-                HStack(spacing: 7) {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 8) {
                     Image("avatar")
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 30, height: 30)
+                        .frame(width: 32, height: 32)
                         .clipShape(Circle())
                     VStack(alignment: .leading, spacing: 1) {
                         Text("Muse 仪表盘")
-                            .font(.system(size: 13, weight: .bold))
+                            .font(.system(size: 13.5, weight: .bold))
                             .foregroundStyle(.black)
                             .lineLimit(1)
-                        HStack(spacing: 3) {
-                            Circle().fill(Color.green).frame(width: 6, height: 6)
-                            Text("运行中 · \(data.updatedTimeShort)")
-                                .font(.system(size: 10))
-                                .foregroundStyle(.gray)
-                                .lineLimit(1)
-                        }
+                        Text("更新于 \(data.updatedTimeShort)")
+                            .font(.system(size: 10.5))
+                            .foregroundStyle(.gray)
+                            .lineLimit(1)
                     }
                 }
                 Divider()
-                WidgetStat(label: "记忆状态", value: data.memoryDisplay, size: 16)
-                HStack {
-                    WidgetStat(label: "未读邮件", value: "\(data.unreadMail)", size: 16)
-                    Spacer()
-                    WidgetStat(label: "进行中项目", value: "\(data.projects)", size: 16)
+                StatCell(icon: "memorychip", iconColor: .purple, label: "记忆状态",
+                         value: data.memoryDisplay, caption: "我的记忆库", valueSize: 17)
+                HStack(alignment: .top, spacing: 8) {
+                    StatCell(icon: "envelope.fill", iconColor: .blue, label: "未读邮件",
+                             value: "\(data.unreadMail)", caption: "未读", valueSize: 17)
+                    StatCell(icon: "folder.fill", iconColor: tealColor, label: "项目",
+                             value: "\(data.projects)", caption: "进行中", valueSize: 17)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -123,30 +138,40 @@ struct MediumView: View {
     var body: some View {
         CardShell {
             VStack(alignment: .leading, spacing: 9) {
-                HStack(spacing: 8) {
+                HStack(spacing: 9) {
                     Image("avatar")
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 34, height: 34)
+                        .frame(width: 38, height: 38)
                         .clipShape(Circle())
-                    Text("Muse · 健康检查仪表盘")
-                        .font(.system(size: 15, weight: .bold))
-                        .foregroundStyle(.black)
-                        .lineLimit(1)
-                    Spacer()
-                    Text(data.updatedTimeShort)
-                        .font(.caption)
-                        .foregroundStyle(.gray)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text("Muse · 健康检查仪表盘")
+                            .font(.system(size: 15.5, weight: .bold))
+                            .foregroundStyle(.black)
+                            .lineLimit(1)
+                        Text("已于 \(data.updatedTimeShort) 更新")
+                            .font(.system(size: 11.5))
+                            .foregroundStyle(.gray)
+                            .lineLimit(1)
+                    }
+                    Spacer(minLength: 0)
+                    HStack(spacing: 4) {
+                        Circle().fill(Color.green).frame(width: 7, height: 7)
+                        Text("运行中")
+                            .font(.system(size: 11.5))
+                            .foregroundStyle(.gray)
+                    }
                 }
                 Divider()
-                HStack(alignment: .top) {
-                    WidgetStat(label: "记忆状态", value: data.memoryDisplay, size: 16)
-                    Spacer()
-                    WidgetStat(label: "未读邮件", value: "\(data.unreadMail)", size: 16)
-                    Spacer()
-                    WidgetStat(label: "进行中项目", value: "\(data.projects)", size: 16)
-                    Spacer()
-                    WidgetStat(label: "定时任务", value: data.tasksStatus, size: 16)
+                HStack(alignment: .top, spacing: 8) {
+                    StatCell(icon: "memorychip", iconColor: .purple, label: "记忆状态",
+                             value: data.memoryDisplay, caption: "我的记忆库", valueSize: 19)
+                    StatCell(icon: "envelope.fill", iconColor: .blue, label: "未读邮件",
+                             value: "\(data.unreadMail)", caption: "未读", valueSize: 19)
+                    StatCell(icon: "folder.fill", iconColor: tealColor, label: "进行中项目",
+                             value: "\(data.projects)", caption: "活跃项目", valueSize: 19)
+                    StatCell(icon: "clock.fill", iconColor: .green, label: "定时任务",
+                             value: data.tasksStatus, caption: "整点刷新", valueColor: .green, valueSize: 19)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -159,46 +184,45 @@ struct LargeView: View {
 
     var body: some View {
         CardShell {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 9) {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(spacing: 14) {
                     Image("avatar")
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 40, height: 40)
+                        .frame(width: 62, height: 62)
                         .clipShape(Circle())
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Muse · 健康检查仪表盘")
-                            .font(.system(size: 16, weight: .bold))
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Muse ·\n健康检查仪表盘")
+                            .font(.system(size: 21, weight: .bold))
                             .foregroundStyle(.black)
+                        Text("健康摘要 · 已于 \(data.updatedTimeShort) 更新")
+                            .font(.system(size: 12.5))
+                            .foregroundStyle(.gray)
                             .lineLimit(1)
-                        HStack(spacing: 4) {
-                            Circle().fill(Color.green).frame(width: 7, height: 7)
-                            Text("Muse 运行中 · 更新于 \(data.updatedTimeShort)")
-                                .font(.caption)
-                                .foregroundStyle(.gray)
-                        }
                     }
+                    Spacer(minLength: 0)
                 }
+
                 Divider()
-                HStack(alignment: .top) {
-                    WidgetStat(label: "记忆状态", value: data.memoryDisplay, size: 22)
-                    Spacer()
-                    WidgetStat(label: "未读邮件", value: "\(data.unreadMail)", size: 22)
+                    .padding(.vertical, 14)
+
+                HStack(alignment: .top, spacing: 12) {
+                    StatCell(icon: "memorychip", iconColor: .purple, label: "记忆状态",
+                             value: data.memoryDisplay, caption: "我的记忆库")
+                    StatCell(icon: "envelope.fill", iconColor: .blue, label: "未读邮件",
+                             value: "\(data.unreadMail)", caption: "未读")
                 }
-                HStack(alignment: .top) {
-                    WidgetStat(label: "进行中项目", value: "\(data.projects)", size: 22)
-                    Spacer()
-                    WidgetStat(label: "定时任务", value: data.tasksStatus, size: 22)
+
+                Spacer(minLength: 10)
+
+                HStack(alignment: .top, spacing: 12) {
+                    StatCell(icon: "folder.fill", iconColor: tealColor, label: "进行中项目",
+                             value: "\(data.projects)", caption: "活跃项目")
+                    StatCell(icon: "clock.fill", iconColor: .green, label: "定时任务",
+                             value: data.tasksStatus, caption: "每 4 小时整点刷新", valueColor: .green)
                 }
+
                 Spacer(minLength: 0)
-                Text("体检提醒：\(data.healthNote)")
-                    .font(.caption)
-                    .foregroundStyle(.green)
-                    .lineLimit(2)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 7)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(RoundedRectangle(cornerRadius: 9).fill(Color.green.opacity(0.12)))
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
